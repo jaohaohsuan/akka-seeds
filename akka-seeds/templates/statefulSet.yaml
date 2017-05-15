@@ -1,11 +1,10 @@
-{{- $svcname := .Values.service.name | trunc 26 -}}
 ---
 apiVersion: apps/v1beta1
 kind: StatefulSet
 metadata:
   name: {{ .Values.seedHostNamePrefix }}
 spec:
-  serviceName: {{ $svcname }}
+  serviceName: {{ .Values.service.name }}
   replicas: {{ .Values.replicaCount }}
   selector:
     matchLabels:
@@ -27,17 +26,21 @@ spec:
         - containerPort: {{ .Values.service.internalPort }}
           protocol: TCP
         env:
+        - name: AB_OFF
+          value: 'true'
         - name: SEED_NODES
-          value: {{ printf "%s-0.%s" $svcname $svcname }}
+          value: '{{ .Values.seedHostNamePrefix }}-0.{{ .Values.service.name }}'
         - name: SEED_PORT
-          value: {{ .Values.service.internalPort }}
+          value: '{{ .Values.service.internalPort }}'
         - name: CLUSTER_NAME
-          value: {{ .Values.actorsystem.name }}
+          value: '{{ .Values.actorsystem.name }}'
         - name: POD_NAME
           valueFrom:
             fieldRef:
               fieldPath: metadata.name
-        - name: HOST_NAME
-          value: "${POD_NAME}.{{ .Values.seedHostNamePrefix }}"
+        command:
+          - "/bin/sh"
+          - "-c"
+          - "HOST_NAME=${POD_NAME}.{{ .Values.service.name }} /deployments/run-java.sh"
         resources:
 {{ toYaml .Values.resources | indent 10 }}
