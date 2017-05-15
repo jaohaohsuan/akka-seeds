@@ -1,5 +1,5 @@
 podTemplate(
-        label: env.JOB_NAME,
+        label: 'akka-seeds',
         containers: [
                 containerTemplate(name: 'jnlp', image: 'henryrao/jnlp-slave', args: '${computer.jnlpmac} ${computer.name}', alwaysPullImage: true)
         ],
@@ -9,7 +9,7 @@ podTemplate(
                 persistentVolumeClaim(claimName: 'helm-repository', mountPath: '/var/helm/repo', readOnly: false)
         ]) {
 
-    node(env.JOB_NAME) {
+    node('akka-seeds') {
         ansiColor('xterm') {
             try {
                 def image
