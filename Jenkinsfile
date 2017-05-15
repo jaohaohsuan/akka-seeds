@@ -46,6 +46,19 @@ podTemplate(
                     }
                 }
 
+                stage('pack') {
+                    docker.image('henryrao/helm:2.3.1').inside('') { c ->
+                        sh '''
+                        # packaging
+                        helm package --destination /var/helm/repo akka-seeds
+                        helm repo index --url https://grandsys.github.io/helm-repository/ --merge /var/helm/repo/index.yaml /var/helm/repo
+                        '''
+                    }
+
+                    build job: 'helm-repository/master', parameters: [string(name: 'commiter', value: "${env.JOB_NAME}\ncommit: ${sh(script: 'git log --format=%B -n 1', returnStdout: true).trim()}")]
+                }
+
+
             } catch (e) {
                 echo "${e}"
                 currentBuild.result = FAILURE
