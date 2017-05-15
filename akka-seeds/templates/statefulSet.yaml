@@ -1,0 +1,43 @@
+{{- $svcname := .Values.service.name | trunc 26 -}}
+---
+apiVersion: apps/v1beta1
+kind: StatefulSet
+metadata:
+  name: {{ .Values.seedHostNamePrefix }}
+spec:
+  serviceName: {{ $svcname }}
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      component: seed
+      app: {{ .Chart.Name }}
+      release: {{ .Release.Name }}
+  template:
+    metadata:
+      labels:
+        component: seed
+        app: {{ .Chart.Name }}
+        release: {{ .Release.Name }}
+    spec:
+      containers:
+      - name: seed
+        image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+        imagePullPolicy: {{ .Values.image.pullPolicy }}
+        ports:
+        - containerPort: {{ .Values.service.internalPort }}
+          protocol: TCP
+        env:
+        - name: SEED_NODES
+          value: {{ printf "%s-0.%s" $svcname $svcname }}
+        - name: SEED_PORT
+          value: {{ .Values.service.internalPort }}
+        - name: CLUSTER_NAME
+          value: {{ .Values.actorsystem.name }}
+        - name: POD_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.name
+        - name: HOST_NAME
+          value: "${POD_NAME}.{{ .Values.seedHostNamePrefix }}"
+        resources:
+{{ toYaml .Values.resources | indent 10 }}
