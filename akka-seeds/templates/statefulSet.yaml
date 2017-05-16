@@ -28,6 +28,8 @@ spec:
         env:
         - name: AB_OFF
           value: 'true'
+        - name: MAN_PORT
+          value: '{{ .Values.clusterHttpManPort }}'
         - name: SEED_NODES
           value: '{{ .Values.seedHostNamePrefix }}-0.{{ .Values.service.name }}'
         - name: SEED_PORT
@@ -42,5 +44,18 @@ spec:
           - "/bin/sh"
           - "-c"
           - "HOST_NAME=${POD_NAME}.{{ .Values.service.name }} /deployments/run-java.sh"
+{{- $probPath := printf "/members/akka.tcp://%s@127.0.0.1:%v" .Values.actorsystem.name .Values.service.internalPort }}
+        readinessProbe:
+          httpGet:
+            path: {{ $probPath }}
+            port: 7878
+          initialDelaySeconds: 10
+          periodSeconds: 5
+        livenessProbe:
+          httpGet:
+            path: {{ $probPath }}
+            port: 7878
+          initialDelaySeconds: 10
+          periodSeconds: 5
         resources:
 {{ toYaml .Values.resources | indent 10 }}

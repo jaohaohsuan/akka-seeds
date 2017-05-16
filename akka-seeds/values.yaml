@@ -11,6 +11,7 @@ service:
   externalPort: 2551
   internalPort: 2551
 seedHostNamePrefix: akka-seed
+clusterHttpManPort: 7878
 actorsystem:
   name: ClusterSystem
 resources:
