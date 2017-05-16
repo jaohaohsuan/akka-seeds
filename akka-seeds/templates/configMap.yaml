@@ -1,0 +1,9 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ template "fullname" . }}
+data:
+  healthz: |-
+{{- $probPath := printf "/members/akka.tcp://%s@${POD_NAME}.%s:%v" .Values.actorsystem.name (include "urisuffix" .) .Values.service.internalPort }}
+    /usr/bin/curl -i http://127.0.0.1:{{ .Values.clusterHttpManPort }}{{ $probPath }}

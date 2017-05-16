@@ -18,6 +18,10 @@ spec:
         app: {{ .Chart.Name }}
         release: {{ .Release.Name }}
     spec:
+      volumes:
+        - name: configs
+          configMap:
+            name: {{ template "fullname" . }}
       containers:
       - name: seed
         image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
@@ -25,13 +29,15 @@ spec:
         ports:
         - containerPort: {{ .Values.service.internalPort }}
           protocol: TCP
+        - containerPort: {{ .Values.clusterHttpManPort }}
+          protocol: TCP
         env:
         - name: AB_OFF
           value: 'true'
         - name: MAN_PORT
           value: '{{ .Values.clusterHttpManPort }}'
         - name: SEED_NODES
-          value: '{{ .Values.seedHostNamePrefix }}-0.{{ .Values.service.name }}'
+          value: '{{ .Values.seedHostNamePrefix }}-0.{{ include "urisuffix" . }}'
         - name: SEED_PORT
           value: '{{ .Values.service.internalPort }}'
         - name: CLUSTER_NAME
@@ -43,19 +49,16 @@ spec:
         command:
           - "/bin/sh"
           - "-c"
-          - "HOST_NAME=${POD_NAME}.{{ .Values.service.name }} /deployments/run-java.sh"
-{{- $probPath := printf "/members/akka.tcp://%s@127.0.0.1:%v" .Values.actorsystem.name .Values.service.internalPort }}
+          - "HOST_NAME=${POD_NAME}.{{ include "urisuffix" . }} /deployments/run-java.sh"
+        volumeMounts:
+          - name: configs
+            mountPath: /opt/probe/bin
         readinessProbe:
-          httpGet:
-            path: {{ $probPath }}
-            port: 7878
-          initialDelaySeconds: 10
-          periodSeconds: 5
-        livenessProbe:
-          httpGet:
-            path: {{ $probPath }}
-            port: 7878
-          initialDelaySeconds: 10
+          exec:
+            command:
+              - sh
+              - /opt/probe/bin/healthz
+          initialDelaySeconds: 7
           periodSeconds: 5
         resources:
 {{ toYaml .Values.resources | indent 10 }}
