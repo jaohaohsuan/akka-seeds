@@ -20,13 +20,13 @@ object Main extends App {
 
   val cluster = Cluster(system)
 
+  val addresses = config.getString("cluster.seed-nodes").split(",").map { host => new Address("akka.tcp", clusterName, host.trim, portOfSeed) }
+  cluster.joinSeedNodes(addresses.toList)
+
   val clusterMan = ClusterHttpManagement(cluster)
   clusterMan.start().onComplete { _ =>
     log.info("ClusterHttpManagement is up")
   }
-
-  val addresses = config.getString("cluster.seed-nodes").split(",").map { host => new Address("akka.tcp", clusterName, host.trim, portOfSeed) }
-  cluster.joinSeedNodes(addresses.toList)
 
   sys.addShutdownHook {
     cluster.leave(cluster.selfAddress)
