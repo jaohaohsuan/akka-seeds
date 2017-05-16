@@ -17,7 +17,7 @@ actorsystem:
 resources:
   limits:
     cpu: 500m
-    memory: 192Mi
+    memory: 256Mi
   requests:
     cpu: 500m
-    memory: 192Mi
+    memory: 256Mi

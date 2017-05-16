@@ -52,12 +52,18 @@ spec:
           - "HOST_NAME=${POD_NAME}.{{ include "urisuffix" . }} /deployments/run-java.sh"
         volumeMounts:
           - name: configs
-            mountPath: /opt/probe/bin
+            mountPath: /opt/scripts
+        lifecycle:
+          preStop:
+            exec:
+              command:
+                - sh
+                - /opt/scripts/pre-stop.sh 
         readinessProbe:
           exec:
             command:
               - sh
-              - /opt/probe/bin/healthz
+              - /opt/scripts/healthz.sh
           initialDelaySeconds: 7
           periodSeconds: 5
         resources:
