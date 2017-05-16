@@ -17,5 +17,10 @@ object Main extends App {
 
   implicit val system = ActorSystem(clusterName, config)
 
-  Cluster(system).joinSeedNodes(addresses.toList)
+  val cluster = Cluster(system)
+  cluster.joinSeedNodes(addresses.toList)
+
+  sys.addShutdownHook {
+    cluster.leave(cluster.selfAddress)
+  }
 }
