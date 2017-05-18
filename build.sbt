@@ -18,7 +18,8 @@ scalaVersion := "2.12.2"
 libraryDependencies ++= Seq(
   "ch.qos.logback" % "logback-classic" % "1.1.3",
   "com.lightbend.akka" %% "akka-management-cluster-http" % "0.3",
-  "com.typesafe.scala-logging" %% "scala-logging" % "3.5.0"
+  "com.typesafe.scala-logging" %% "scala-logging" % "3.5.0",
+  "com.github.romix.akka" %% "akka-kryo-serialization" % "0.5.1"
 ) ++ akka
 
 exportJars := true
