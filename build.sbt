@@ -5,7 +5,8 @@ val akkaVersion = "2.5.1"
 lazy val akka = Seq(
   "com.typesafe.akka" %% "akka-cluster",
   "com.typesafe.akka" %% "akka-cluster-metrics",
-  "com.typesafe.akka" %% "akka-slf4j"
+  "com.typesafe.akka" %% "akka-slf4j",
+  "com.typesafe.akka" %% "akka-remote"
 ).map(_ % akkaVersion)
 
 name := "akka-seeds"
