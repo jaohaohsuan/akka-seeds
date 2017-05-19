@@ -6,6 +6,9 @@ import akka.actor.Address
 import akka.cluster.http.management.ClusterHttpManagement
 import com.typesafe.config.{Config, ConfigFactory}
 
+import scala.concurrent.Await
+import scala.concurrent.duration.Duration
+
 object Main extends App {
 
   val config: Config = ConfigFactory.load()
@@ -30,8 +33,13 @@ object Main extends App {
 
   sys.addShutdownHook {
     cluster.leave(cluster.selfAddress)
+    cluster.down(cluster.selfAddress)
     clusterMan.stop().onComplete { _ =>
       log.info("ClusterHttpManagement stopped.")
     }
+
+    system.terminate()
+    Await.result(system.whenTerminated,Duration.Inf)
+    println("actorsystem has shutdown gracefully")
   }
 }

@@ -1,6 +1,6 @@
 apiVersion: v1
 description: Akka Cluster Node-Seeds for Kubernetes
 name: akka-seeds
-version: 0.1.0
+version: 0.1.1
 tillerVersion: ">=2.3.1"
 icon: "https://en.wikipedia.org/wiki/File:Akka_toolkit_logo.svg"

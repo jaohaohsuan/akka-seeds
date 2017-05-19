@@ -13,13 +13,15 @@ spec:
       release: {{ .Release.Name }}
   template:
     metadata:
+      annotations:
+        checksum/extras-confMap: {{ include (print $.Template.BasePath "/configMap.yaml") . | sha256sum }}
       labels:
         component: seed
         app: {{ .Chart.Name }}
         release: {{ .Release.Name }}
     spec:
       volumes:
-        - name: configs
+        - name: extras
           configMap:
             name: {{ template "fullname" . }}
       containers:
@@ -34,36 +36,21 @@ spec:
         env:
         - name: AB_OFF
           value: 'true'
-        - name: MAN_PORT
-          value: '{{ .Values.clusterHttpManPort }}'
-        - name: SEED_NODES
-          value: '{{ .Values.seedHostNamePrefix }}-0.{{ include "urisuffix" . }}'
-        - name: SEED_PORT
-          value: '{{ .Values.service.internalPort }}'
-        - name: CLUSTER_NAME
-          value: '{{ .Values.actorsystem.name }}'
         - name: POD_NAME
           valueFrom:
             fieldRef:
               fieldPath: metadata.name
-        command:
-          - "/bin/sh"
-          - "-c"
-          - "HOST_NAME=${POD_NAME}.{{ include "urisuffix" . }} /deployments/run-java.sh"
+        - name: JAVA_OPTIONS
+          value: |-
+            -Dconfig.file=/extras/akka.conf
         volumeMounts:
-          - name: configs
-            mountPath: /opt/scripts
-        lifecycle:
-          preStop:
-            exec:
-              command:
-                - sh
-                - /opt/scripts/pre-stop.sh 
+          - name: extras
+            mountPath: /extras
         readinessProbe:
           exec:
             command:
               - sh
-              - /opt/scripts/healthz.sh
+              - /extras/healthz.sh
           initialDelaySeconds: 7
           periodSeconds: 5
         resources:

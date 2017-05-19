@@ -10,3 +10,31 @@ data:
     /usr/bin/curl -i -X PUT -F 'operation=Down' http://127.0.0.1:{{ .Values.clusterHttpManPort }}{{ $membersPath }}
   healthz.sh: |
     /usr/bin/curl -i http://127.0.0.1:{{ .Values.clusterHttpManPort }}{{ $membersPath }}
+  akka.conf: |
+    include "application"
+    akka {
+
+      loglevel = "INFO"
+
+      remote {
+        netty.tcp {
+          hostname = ${?POD_NAME}.{{ include "urisuffix" . }}
+          prot = {{ .Values.service.internalPort }}
+        }
+      }
+
+      cluster {
+        log-info = on
+
+        http {
+          management {
+            hostname = 127.0.0.1
+            port = {{ .Values.clusterHttpManPort }}
+          }
+        }
+      }
+    }
+    cluster {
+      seed-nodes = "{{ .Values.seedHostNamePrefix }}-0.{{ include "urisuffix" . }}"
+      name = "{{ .Values.actorsystem.name }}"
+    }
