@@ -1,6 +1,6 @@
 lazy val cpJarsForDocker = taskKey[Unit]("prepare for building Docker image")
 
-val akkaVersion = "2.5.1"
+val akkaVersion = "2.5.2"
 
 lazy val akka = Seq(
   "com.typesafe.akka" %% "akka-cluster",
