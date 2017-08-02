@@ -1,4 +1,4 @@
-package com.gandsys.com.inu.infra
+package com.gandsys.inu.infra
 
 import akka.actor.ActorSystem
 import akka.cluster.Cluster
