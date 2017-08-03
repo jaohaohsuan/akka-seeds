@@ -44,13 +44,24 @@ target/docker/
 ## How to use
 ENV values
 - CLUSTER_NAME=cluster1
-- SEED_PORT=2551
+- REMOTE_TCP_PORT=2552
 - HOST_NAME=host1
 - SEED_NODES=192.168.1.10,host1
 - MAN_PORT=7878
 
 `MAN_PORT` is [cluster-http-management](http://developer.lightbend.com/docs/akka-management/current/cluster-http-management.html#api-definition) port
 
+specify `REMOTE_TCP_PORT`
 ```bash
-docker run --rm [image] -e SEED_PORT=2552
+docker run --rm [image] -e REMOTE_TCP_PORT=2555
+```
+
+load conf file externally
+```bash
+docker run --rm [image] -v your.conf:/etc/akka/run.conf -Dconfig.file=/etc/akka/run.conf
+```
+
+choose conf resource manually
+```bash
+docker run --rm [image] -Dconfig.resource=debug
 ```
