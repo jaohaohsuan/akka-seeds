@@ -10,14 +10,18 @@ import scala.concurrent.duration.Duration
 
 object Main extends App {
 
+  val log = com.typesafe.scalalogging.Logger(this.getClass)
+
   val config: Config = ConfigFactory.load()
+
+  log.info(s"akka.remote.netty.tcp.port = ${config.getInt("akka.remote.netty.tcp.port")}")
+  log.info(s"akka.remote.netty.tcp.hostname = ${config.getInt("akka.remote.netty.tcp.hostname")}")
 
   val clusterName = config.getString("cluster.name")
 
   implicit val system = ActorSystem(clusterName)
   implicit val ec = system.dispatcher
 
-  val log = com.typesafe.scalalogging.Logger(this.getClass)
 
   val cluster = Cluster(system)
 

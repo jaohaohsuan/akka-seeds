@@ -63,5 +63,5 @@ docker run --rm [image] -v your.conf:/etc/akka/run.conf -Dconfig.file=/etc/akka/
 
 choose conf resource manually
 ```bash
-docker run --rm [image] -Dconfig.resource=debug
+docker run --rm [image] -Dconfig.resource=debug.conf
 ```
