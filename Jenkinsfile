@@ -18,13 +18,13 @@ podTemplate(
     node('akka-seeds') {
         ansiColor('xterm') {
             try {
-                def image
-                def imgTag
-                def commit_log = sh(script: 'git log --format=%B -n 1', returnStdout: true).trim()
-                
                 stage('prepare') {
                     checkout scm
                 }
+
+                def image
+                def imgTag
+                def commit_log = sh(script: 'git log --format=%B -n 1', returnStdout: true).trim()
 
                 container('sbt') {
                     stage('build') {
