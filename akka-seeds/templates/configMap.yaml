@@ -8,7 +8,7 @@ data:
   pre-stop.sh: |-
     /usr/bin/curl -i -X DELETE http://127.0.0.1:{{ .Values.clusterHttpManPort }}{{ $membersPath }}
     /usr/bin/curl -i -X PUT -F 'operation=Down' http://127.0.0.1:{{ .Values.clusterHttpManPort }}{{ $membersPath }}
-  healthz.sh: |-
+  healthz: |-
     /usr/bin/curl -i http://127.0.0.1:{{ .Values.clusterHttpManPort }}{{ $membersPath }}
   prod.conf: |-
     include "application"

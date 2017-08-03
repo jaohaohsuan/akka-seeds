@@ -55,7 +55,7 @@ spec:
           exec:
             command:
               - sh
-              - /extras/healthz.sh
+              - /extras/healthz
           initialDelaySeconds: 7
           periodSeconds: 5
         resources:
