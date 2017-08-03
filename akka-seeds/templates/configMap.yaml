@@ -1,5 +1,5 @@
 ---
-{{- $membersPath := printf "/members/akka.tcp://%s@${POD_NAME}.%s:%v" .Values.actorsystem.name (include "urisuffix" .) .Values.service.internalPort }}
+{{- $membersPath := printf "/members/akka.tcp://%s@${POD_NAME}.%s:%v" .Values.actorsystem (include "urisuffix" .) .Values.service.internalPort }}
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -11,17 +11,27 @@ data:
   healthz.sh: |
     /usr/bin/curl -i http://127.0.0.1:{{ .Values.clusterHttpManPort }}{{ $membersPath }}
   akka.conf: |
-    include "application"
     akka {
 
+      loggers = ["akka.event.slf4j.Slf4jLogger"]
+      logging-filter = "akka.event.slf4j.Slf4jLoggingFilter"
+      loglevel = "INFO"
+      log-config-on-start = off
+
       actor {
+        provider = "cluster"
+        serialize-messages = on
+        serializers {
+          proto = "akka.remote.serialization.ProtobufSerializer"
+        }
+
         serialization-bindings {
-          "java.io.Serializable" = none
+          "com.trueaccord.scalapb.GeneratedMessage" = proto
         }
       }
-      loglevel = "INFO"
 
       remote {
+        log-remote-lifecycle-events = off
         netty.tcp {
           hostname = ${?POD_NAME}.{{ include "urisuffix" . }}
           prot = {{ .Values.service.internalPort }}
@@ -29,17 +39,35 @@ data:
       }
 
       cluster {
+        {{- $replicas := ( .Values.replicaCount | int ) }}
+        {{- $fmt := printf "akka.tcp://%s@%s-%%d.%s:%d" .Values.actorsystem .Values.seedHostNamePrefix (include "urisuffix" .) ( .Values.service.internalPort | int ) }}
+        seed-nodes = [
+        {{- range $e := until $replicas }}
+          "{{ printf $fmt $e }}"
+          {{- if ne $replicas (add1 $e) -}}
+          ,
+          {{- end }}
+        {{- end }}
+        ]
+
         log-info = on
+
+        metrics.enabled = off
 
         http {
           management {
-            hostname = 127.0.0.1
+            hostname = "127.0.0.1"
             port = {{ .Values.clusterHttpManPort }}
           }
         }
       }
+
+      extensions = [
+        "akka.cluster.metrics.ClusterMetricsExtension"
+      ]
     }
+
     cluster {
-      seed-nodes = "{{ .Values.seedHostNamePrefix }}-0.{{ include "urisuffix" . }}"
-      name = "{{ .Values.actorsystem.name }}"
+      name = "{{ .Values.actorsystem }}"
+      name = ${?CLUSTER_NAME}
     }

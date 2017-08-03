@@ -24,9 +24,13 @@ spec:
         - name: extras
           configMap:
             name: {{ template "fullname" . }}
+      {{- if .Values.imagePullSecret }}
+      imagePullSecrets:
+        - name: {{ .Values.imagePullSecret }}
+      {{- end }}
       containers:
       - name: seed
-        image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+        image: {{ .Values.image.repository }}:{{ .Values.image.tag }}
         imagePullPolicy: {{ .Values.image.pullPolicy }}
         ports:
         - containerPort: {{ .Values.service.internalPort }}
@@ -41,11 +45,14 @@ spec:
             fieldRef:
               fieldPath: metadata.name
         - name: JAVA_OPTIONS
-          value: |-
+          value: >-
             -Dconfig.file=/extras/akka.conf
         volumeMounts:
           - name: extras
             mountPath: /extras
+        livenessProbe:
+          tcpSocket:
+            port: {{ .Values.service.internalPort }}
         readinessProbe:
           exec:
             command:
