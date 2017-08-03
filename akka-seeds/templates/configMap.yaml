@@ -10,17 +10,20 @@ data:
     /usr/bin/curl -i -X PUT -F 'operation=Down' http://127.0.0.1:{{ .Values.clusterHttpManPort }}{{ $membersPath }}
   healthz.sh: |
     /usr/bin/curl -i http://127.0.0.1:{{ .Values.clusterHttpManPort }}{{ $membersPath }}
-  akka.conf: |
+  prod.conf: |
+    include "application"
+
+    cluster {
+      name = {{ .Values.actorsystem }}
+      port = {{ .Values.service.internalPort }}
+    }
+
     akka {
-
-      loggers = ["akka.event.slf4j.Slf4jLogger"]
-      logging-filter = "akka.event.slf4j.Slf4jLoggingFilter"
       loglevel = "INFO"
-      log-config-on-start = off
-
+      
       actor {
-        provider = "cluster"
         serialize-messages = on
+
         serializers {
           proto = "akka.remote.serialization.ProtobufSerializer"
         }
@@ -34,7 +37,6 @@ data:
         log-remote-lifecycle-events = off
         netty.tcp {
           hostname = ${?POD_NAME}.{{ include "urisuffix" . }}
-          prot = {{ .Values.service.internalPort }}
         }
       }
 
@@ -51,7 +53,6 @@ data:
         ]
 
         log-info = on
-
         metrics.enabled = off
 
         http {
@@ -61,13 +62,4 @@ data:
           }
         }
       }
-
-      extensions = [
-        "akka.cluster.metrics.ClusterMetricsExtension"
-      ]
-    }
-
-    cluster {
-      name = "{{ .Values.actorsystem }}"
-      name = ${?CLUSTER_NAME}
     }

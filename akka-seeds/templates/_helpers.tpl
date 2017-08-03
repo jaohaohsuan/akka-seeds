@@ -18,3 +18,15 @@ We truncate at 63 chars because some Kubernetes name fields are limited to this 
 {{- define "urisuffix" -}}
 {{- printf "%s.%s.svc.cluster.local" .Values.service.name .Release.Namespace -}}
 {{- end -}}
+
+{{- define "labels" -}}
+heritage: {{ .Release.Service }}
+release: {{ .Release.Name }}
+chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
+{{- end -}}
+
+{{- define "labels.seed" -}}
+component: seed
+app: {{ .Chart.Name }}
+release: {{ .Release.Name }}
+{{- end -}}

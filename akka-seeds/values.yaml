@@ -8,12 +8,12 @@ image:
   pullPolicy: Always
 service:
   name: akka-seeds
-  externalPort: 2552
-  internalPort: 2552
+  externalPort: 2551
+  internalPort: 2551
 seedHostNamePrefix: akka-seed
 clusterHttpManPort: 7878
 imagePullSecret: grandsys
-actorsystem: ClusterSystem
+actorsystem: demo1
 resources:
   limits:
     memory: 1Gi
