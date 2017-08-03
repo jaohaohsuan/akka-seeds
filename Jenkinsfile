@@ -19,6 +19,9 @@ podTemplate(
         ansiColor('xterm') {
             try {
                 def image
+                def imgTag
+                def commit_log = sh(script: 'git log --format=%B -n 1', returnStdout: true).trim()
+                
                 stage('prepare') {
                     checkout scm
                 }
@@ -37,22 +40,39 @@ podTemplate(
 
                 stage('build image') {
                     dir('target/docker') {
-                        def tag = sh(returnStdout: true, script: 'cat tag').trim()
+                        imgTag = sh(returnStdout: true, script: 'cat tag').trim()
                         def mainClass = sh(returnStdout: true, script: 'cat mainClass').trim()
-                        image = docker.build("${env.PRIVATE_REGISTRY}/inu/akka-seeds:${tag}", "--pull --build-arg JAVA_MAIN_CLASS=${mainClass} .")
+                        image = docker.build("${env.PRIVATE_REGISTRY}/inu/akka-seeds:${imgTag}", "--pull --build-arg JAVA_MAIN_CLASS=${mainClass} .")
                     }
 
                 }
                 stage('push image') {
                     withDockerRegistry(url: env.PRIVATE_REGISTRY_URL, credentialsId: 'docker-login') {
-
                         image.push()
-
                         if( env.BRANCH_NAME == 'master' ){
                             image.push('latest')
                         }
-
                     }
+                }
+
+                stage('package') {
+                    container('helm') {
+                        sh 'helm init --client-only'
+                        dir('akka-seeds') {
+                            echo 'update image tag'
+                            sh """
+                            sed -i \'s/\${BUILD_TAG}/${imgTag}/\' ./templates/NOTES.txt ./values.yaml
+                            """
+                            sh 'helm lint .'
+                            sh 'helm package --destination /var/helm/repo .'
+                        }
+                        dir('/var/helm/repo') {
+                            def flags = "--url ${env.HELM_PUBLIC_REPO_URL}"
+                            flags = fileExists('index.yaml') ? "${flags} --merge index.yaml" : flags
+                            sh "helm repo index ${flags} ."
+                        }
+                    }
+                    build job: 'helm-repository/master', parameters: [string(name: 'commiter', value: "${env.JOB_NAME}\ncommit: ${commit_log}")]
                 }
 
             } catch (e) {

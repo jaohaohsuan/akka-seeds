@@ -4,7 +4,7 @@
 replicaCount: !!int 2
 image:
   repository: docker.grandsys.com/inu/akka-seeds
-  tag: 2.5.3
+  tag: ${BUILD_TAG}
   pullPolicy: Always
 service:
   name: akka-seeds
@@ -17,3 +17,4 @@ actorsystem: demo1
 resources:
   limits:
     memory: 1Gi
+helmRepo: grandsys
