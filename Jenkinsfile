@@ -24,6 +24,7 @@ podTemplate(
 
                 def image
                 def imgTag
+                def imgName = "${env.PRIVATE_REGISTRY}/inu/akka-seeds"
                 def commit_log = sh(script: 'git log --format=%B -n 1', returnStdout: true).trim()
 
                 container('sbt') {
@@ -42,7 +43,7 @@ podTemplate(
                     dir('target/docker') {
                         imgTag = sh(returnStdout: true, script: 'cat tag').trim()
                         def mainClass = sh(returnStdout: true, script: 'cat mainClass').trim()
-                        image = docker.build("${env.PRIVATE_REGISTRY}/inu/akka-seeds:${imgTag}", "--pull --build-arg JAVA_MAIN_CLASS=${mainClass} .")
+                        image = docker.build("${imgName}:${imgTag}", "--pull --build-arg JAVA_MAIN_CLASS=${mainClass} .")
                     }
 
                 }
@@ -54,8 +55,29 @@ podTemplate(
                         }
                     }
                 }
-
-                stage('package') {
+                stage('test chart'){
+                    container('helm') {
+                        sh 'helm init --client-only'
+                        dir('akka-seeds') {
+                            sh 'helm lint .'
+                            def release    = "test-seed${env.BUILD_ID}"
+                            def hostPrefix = "test-seed${env.BUILD_ID}"
+                            def svcName    = "test-seeds${env.BUILD_ID}"
+                            sh "helm install --set=image.repository=${imgName},image.tag=${imgTag},seedHostNamePrefix=${hostPrefix},service.name=${svcName} -n ${release} ."
+                            try {
+                                sh "helm test ${release} --cleanup"
+                            } catch(err) {
+                                echo "${error}"
+                                currentBuild.result = FAILURE
+                            }
+                            finally {
+                                sh "helm delete --purge ${releaseName}"
+                            }
+                        }
+                    }
+                }
+                
+                stage('package chart') {
                     container('helm') {
                         sh 'helm init --client-only'
                         dir('akka-seeds') {
