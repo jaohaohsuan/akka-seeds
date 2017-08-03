@@ -14,7 +14,7 @@ object Main extends App {
 
   val clusterName = config.getString("cluster.name")
 
-  implicit val system = ActorSystem(clusterName, config)
+  implicit val system = ActorSystem(clusterName)
   implicit val ec = system.dispatcher
 
   val log = com.typesafe.scalalogging.Logger(this.getClass)
