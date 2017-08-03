@@ -1,5 +1,5 @@
 ---
-{{- $membersPath := printf "/members/akka.tcp://%s@${POD_NAME}.%s:%v" .Values.actorsystem (include "urisuffix" .) .Values.service.internalPort }}
+{{- $membersPath := printf "/members/akka.tcp://%s@${POD_NAME}.%s:%v" .Values.actorsystem (include "urisuffix" .) .Values.seedPort }}
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -15,7 +15,7 @@ data:
 
     cluster {
       name = {{ .Values.actorsystem }}
-      port = {{ .Values.service.internalPort }}
+      port = {{ .Values.seedPort }}
     }
 
     akka {
@@ -42,7 +42,7 @@ data:
 
       cluster {
         {{- $replicas := ( .Values.replicaCount | int ) }}
-        {{- $fmt := printf "akka.tcp://%s@%s-%%d.%s:%d" .Values.actorsystem .Values.seedHostNamePrefix (include "urisuffix" .) ( .Values.service.internalPort | int ) }}
+        {{- $fmt := printf "akka.tcp://%s@%s-%%d.%s:%d" .Values.actorsystem .Values.seedHostNamePrefix (include "urisuffix" .) ( .Values.seedPort | int ) }}
         seed-nodes = [
         {{- range $e := until $replicas }}
           "{{ printf $fmt $e }}"
@@ -52,7 +52,7 @@ data:
         {{- end }}
         ]
 
-        log-info = on
+        log-info = off
         metrics.enabled = off
 
         http {

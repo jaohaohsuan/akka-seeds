@@ -7,9 +7,9 @@ metadata:
 {{ include "labels" . | indent 4 }}
 spec:
   ports:
-  - port: {{ .Values.service.externalPort }}
+  - port: {{ .Values.seedPort }}
     protocol: TCP
-    targetPort: {{ .Values.service.internalPort }}
+    targetPort: {{ .Values.seedPort }}
   selector:
 {{ include "labels.seed" . | indent 4 }}      
   clusterIP: None
