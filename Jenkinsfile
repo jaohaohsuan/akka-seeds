@@ -71,7 +71,7 @@ podTemplate(
                                 currentBuild.result = FAILURE
                             }
                             finally {
-                                sh "helm delete --purge ${releaseName}"
+                                sh "helm delete --purge ${release}"
                             }
                         }
                     }
