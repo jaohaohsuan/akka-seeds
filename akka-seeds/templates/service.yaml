@@ -10,6 +10,11 @@ spec:
   - port: {{ .Values.seedPort }}
     protocol: TCP
     targetPort: {{ .Values.seedPort }}
+    name: seed
+  - port: {{ .Values.clusterHttpManPort }}
+    protocol: TCP
+    targetPort: {{ .Values.clusterHttpManPort }}
+    name: http
   selector:
 {{ include "labels.seed" . | indent 4 }}      
   clusterIP: None

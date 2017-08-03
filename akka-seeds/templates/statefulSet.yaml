@@ -38,6 +38,10 @@ spec:
         env:
         - name: AB_OFF
           value: 'true'
+        - name: POD_IP
+          valueFrom:
+            fieldRef:
+              fieldPath: status.podIP
         - name: POD_NAME
           valueFrom:
             fieldRef:

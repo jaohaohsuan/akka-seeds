@@ -9,4 +9,4 @@ To learn more about the release, try:
 
 To upgrade image:
 
-  $ helm upgrade --set image.tag=${BUILD_TAG} {{ .Values.helmRepo }}/{{ .Chart.Name }}
+  $ helm upgrade --set image.tag={{ .Values.image.tag }} {{ .Values.helmRepo }}/{{ .Chart.Name }}
