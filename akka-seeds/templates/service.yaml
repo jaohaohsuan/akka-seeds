@@ -16,5 +16,5 @@ spec:
     targetPort: {{ .Values.clusterHttpManPort }}
     name: http
   selector:
-{{ include "labels.seed" . | indent 4 }}      
+{{ include "labels.seed" . | indent 4 }}
   clusterIP: None
