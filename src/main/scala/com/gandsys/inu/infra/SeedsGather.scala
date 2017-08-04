@@ -13,7 +13,7 @@ object SeedNodes {
   }
 
   def addresses(implicit config: Config, system: ActorSystem): List[Address] = {
-    val port = config.getInt("akka.remote.netty.tcp.port")
+    val port = config.getInt("cluster.port")
     getList(config).map { node => new Address("akka.tcp", system.name, node.trim, port) } toList
   }
 }
