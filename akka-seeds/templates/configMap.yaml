@@ -16,6 +16,17 @@ data:
     cluster {
       name = {{ .Values.actorsystem }}
       port = {{ .Values.seedPort }}
+      seed-nodes = [
+        {{- $replicas := ( .Values.replicaCount | int ) }}
+        {{- $fmt := printf "%s-%%d.%s" .Values.seedHostNamePrefix (include "urisuffix" .) }}
+        
+        {{- range $e := until $replicas }}
+          "{{ printf $fmt $e }}"
+          {{- if ne $replicas (add1 $e) -}}
+          ,
+          {{- end }}
+        {{- end }}
+      ]
     }
 
     akka {
@@ -41,17 +52,7 @@ data:
       }
 
       cluster {
-        {{- $replicas := ( .Values.replicaCount | int ) }}
-        {{- $fmt := printf "akka.tcp://%s@%s-%%d.%s:%d" .Values.actorsystem .Values.seedHostNamePrefix (include "urisuffix" .) ( .Values.seedPort | int ) }}
-        seed-nodes = [
-        {{- range $e := until $replicas }}
-          "{{ printf $fmt $e }}"
-          {{- if ne $replicas (add1 $e) -}}
-          ,
-          {{- end }}
-        {{- end }}
-        ]
-
+        seed-nodes = []
         log-info = off
         metrics.enabled = off
 

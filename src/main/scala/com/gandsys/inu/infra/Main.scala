@@ -4,7 +4,6 @@ import akka.actor.ActorSystem
 import akka.cluster.Cluster
 import akka.cluster.http.management.ClusterHttpManagement
 import com.typesafe.config.{Config, ConfigFactory}
-
 import scala.concurrent.Await
 import scala.concurrent.duration.Duration
 
@@ -12,18 +11,18 @@ object Main extends App {
 
   val log = com.typesafe.scalalogging.Logger(this.getClass)
 
-  val config: Config = ConfigFactory.load()
+  implicit val config: Config = ConfigFactory.load()
 
-  log.info(s"akka.remote.netty.tcp.port = ${config.getInt("akka.remote.netty.tcp.port")}")
-  log.info(s"akka.remote.netty.tcp.hostname = ${config.getString("akka.remote.netty.tcp.hostname")}")
+  log.debug(s"akka.remote.netty.tcp.port = ${config.getInt("akka.remote.netty.tcp.port")}")
+  log.debug(s"akka.remote.netty.tcp.hostname = ${config.getString("akka.remote.netty.tcp.hostname")}")
 
-  val clusterName = config.getString("cluster.name")
-
-  implicit val system = ActorSystem(clusterName)
+  implicit val system = ActorSystem(config.getString("cluster.name"))
   implicit val ec = system.dispatcher
 
-
   val cluster = Cluster(system)
+
+
+  cluster.joinSeedNodes(SeedNodes.addresses)
 
   val clusterMan = ClusterHttpManagement(cluster)
   clusterMan.start().onComplete { _ =>
@@ -38,6 +37,6 @@ object Main extends App {
     }
 
     Await.result(system.whenTerminated, Duration.Inf)
-    log.info(s"$clusterName has shutdown gracefully")
+    log.info(s"${system.name} has shutdown gracefully")
   }
 }
