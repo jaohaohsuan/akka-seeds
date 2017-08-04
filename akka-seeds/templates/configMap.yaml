@@ -53,7 +53,7 @@ data:
 
       cluster {
         seed-nodes = []
-        log-info = off
+        log-info = on
         metrics.enabled = off
 
         http {

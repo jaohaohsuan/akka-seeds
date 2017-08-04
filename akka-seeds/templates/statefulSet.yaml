@@ -52,10 +52,10 @@ spec:
         volumeMounts:
           - name: extras
             mountPath: /extras
-        livenessProbe:
+        readinessProbe:
           tcpSocket:
             port: {{ .Values.seedPort }}
-        readinessProbe:
+        livenessProbe:
           exec:
             command:
               - sh
