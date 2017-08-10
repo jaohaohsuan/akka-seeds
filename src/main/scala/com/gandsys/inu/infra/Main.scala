@@ -3,9 +3,10 @@ package com.gandsys.inu.infra
 import akka.actor.ActorSystem
 import akka.cluster.Cluster
 import com.typesafe.config.{Config, ConfigFactory}
+import ActorSystemExtensions._
 
 object Main extends App {
-  
+
   val log = com.typesafe.scalalogging.Logger(this.getClass)
 
   private val config: Config = ConfigFactory.load()
@@ -25,6 +26,6 @@ object Main extends App {
 
   sys.addShutdownHook {
     cm.gracefullyLeaveCluster
-    cm.waitTerminated
+    system.waitTerminated()
   }
 }
