@@ -1,6 +1,6 @@
 lazy val cpJarsForDocker = taskKey[Unit]("prepare for building Docker image")
 
-val akkaVersion = "2.5.3"
+val akkaVersion = "2.5.4"
 
 lazy val akka = Seq(
   "com.typesafe.akka" %% "akka-cluster",
@@ -18,9 +18,9 @@ scalaVersion := "2.12.3"
 resolvers += "jitpack" at "https://jitpack.io"
 
 libraryDependencies ++= Seq(
-  "ch.qos.logback" % "logback-classic" % "1.1.3",
+  "ch.qos.logback" % "logback-classic" % "1.2.3",
   "com.lightbend.akka" %% "akka-management-cluster-http" % "0.3",
-  "com.typesafe.scala-logging" %% "scala-logging" % "3.5.0",
+  "com.typesafe.scala-logging" %% "scala-logging" % "3.7.2",
   "com.github.jaohaohsuan.lib1" % "protobuf_2.12" % "master-SNAPSHOT"
 ) ++ akka
 

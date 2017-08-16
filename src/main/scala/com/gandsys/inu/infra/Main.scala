@@ -4,6 +4,7 @@ import akka.actor.ActorSystem
 import akka.cluster.Cluster
 import com.typesafe.config.{Config, ConfigFactory}
 import ActorSystemExtensions._
+import akka.cluster.http.management.ClusterHttpManagement
 
 object Main extends App {
 
@@ -18,14 +19,24 @@ object Main extends App {
   implicit val system = ActorSystem(clusterCfg.clusterName)
   implicit val ec = system.dispatcher
 
-  implicit val cluster: Cluster = Cluster(system)
+  val cluster: Cluster = Cluster(system)
   cluster.joinSeedNodes(clusterCfg.addresses)
 
-  val cm = new ClusterManagement(cluster)
-  cm.register()
+  val clusterHttpMan = ClusterHttpManagement(cluster)
+  clusterHttpMan.start().onComplete { _ =>
+    log.info("ClusterHttpManagement is up")
+    sys.addShutdownHook {
+      clusterHttpMan.stop().onComplete { _ =>
+        log.info("ClusterHttpManagement stopped.")
+      }
+    }
+  }
 
   sys.addShutdownHook {
-    cm.gracefullyLeaveCluster
+    // gracefullyLeaveCluster
+    cluster.leave(cluster.selfAddress)
+    cluster.down(cluster.selfAddress)
+
     system.waitTerminated()
   }
 }
