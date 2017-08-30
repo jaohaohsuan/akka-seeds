@@ -55,6 +55,8 @@ data:
         seed-nodes = []
         log-info = on
         metrics.enabled = off
+        
+        roles = [ seed ]
 
         http {
           management {
