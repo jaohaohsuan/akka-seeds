@@ -13,5 +13,5 @@ spec:
       - /bin/bash
       - -c
       - >-
-        (( '{{ .Values.replicaCount }}' == $(curl -s {{ $seed0 }}/members | jq '.members | map(select(.status == "Up")) | length') ))
+        (( '{{ .Values.replicaCount }}' == $(curl -s {{ $seed0 }}/members | jq '.members | map(select(.status == "Up" and (.roles | index("{{ .Values.seedrole }}")))) | length') ))
   restartPolicy: OnFailure

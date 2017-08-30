@@ -56,7 +56,7 @@ data:
         log-info = on
         metrics.enabled = off
         
-        roles = [ seed ]
+        roles = [ {{ .Values.seedrole }} ]
 
         http {
           management {

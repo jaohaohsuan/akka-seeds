@@ -12,6 +12,7 @@ seedHostNamePrefix: akka-seed
 clusterHttpManPort: 7878
 imagePullSecret: grandsys
 actorsystem: demo1
+seedrole: seed
 seedPort: 2551
 resources:
   limits:
